@@ -67,11 +67,8 @@ function groupInvitees(invitees: Invitee[]): InviteeGroup[] {
   return Array.from(groups.entries())
     .map(([invitationCode, groupedInvitees]) => ({
       invitationCode,
-      invitees: groupedInvitees.sort((a, b) =>
-        (a.fullName ?? "").localeCompare(b.fullName ?? "")
-      )
-    }))
-    .sort((a, b) => a.invitationCode.localeCompare(b.invitationCode));
+      invitees: groupedInvitees
+    }));
 }
 
 function formatWeddingDate(date?: string | null) {
