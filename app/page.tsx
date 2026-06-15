@@ -3,7 +3,7 @@ import { CopyLinkButton } from "./copy-link-button";
 export const dynamic = "force-dynamic";
 
 const API_BASE_URL = "https://api.mywedding.events";
-const WEDDING_ID = "188c23d5-0541-4f03-87ec-c5629d03dfd8";
+const WEDDING_ID = "80e1e815-408c-48eb-a6d1-40aa8241f8e7";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "change-me";
 const INVITATION_BASE_URL = "https://joeelissa.mywedding.events";
 
