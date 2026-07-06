@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 
 const API_BASE_URL = "https://api.mywedding.events";
-const WEDDING_ID = "80e1e815-408c-48eb-a6d1-40aa8241f8e7";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "change-me";
 
 export type InviteeDraft = {
@@ -29,11 +28,20 @@ function cleanInvitee(invitee: InviteeDraft): InviteeDraft {
 }
 
 export async function createInvitees(
+  weddingId: string,
   invitees: InviteeDraft[]
 ): Promise<CreateInviteesResult> {
+  const trimmedWeddingId = weddingId.trim();
   const cleanedInvitees = invitees
     .map(cleanInvitee)
     .filter((invitee) => invitee.invitationCode && invitee.fullName);
+
+  if (!trimmedWeddingId) {
+    return {
+      ok: false,
+      error: "Open this page with a wedding ID in the URL."
+    };
+  }
 
   if (cleanedInvitees.length === 0) {
     return {
@@ -43,7 +51,7 @@ export async function createInvitees(
   }
 
   const response = await fetch(
-    `${API_BASE_URL}/api/admin/weddings/${WEDDING_ID}/invitees`,
+    `${API_BASE_URL}/api/admin/weddings/${encodeURIComponent(trimmedWeddingId)}/invitees`,
     {
       method: "POST",
       headers: {
@@ -67,7 +75,7 @@ export async function createInvitees(
     };
   }
 
-  revalidatePath("/");
+  revalidatePath(`/${trimmedWeddingId}`);
 
   return { ok: true };
 }

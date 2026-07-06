@@ -23,6 +23,7 @@ export type InviteeGroup = {
 
 type InvitationGroupsProps = {
   groups: InviteeGroup[];
+  weddingId: string;
 };
 
 type PersonFormState = {
@@ -47,11 +48,11 @@ function createEmptyPerson(): PersonFormState {
 function statusClasses(status?: Invitee["status"]) {
   switch (status) {
     case "accepted":
-      return "bg-emerald-100 text-emerald-800";
+      return "bg-[#eef3e6] text-[#55663f]";
     case "rejected":
-      return "bg-rose-100 text-rose-800";
+      return "bg-[#f7dfe2] text-[#8b3145]";
     default:
-      return "bg-amber-100 text-amber-800";
+      return "bg-[#fbefd9] text-[#9a6d34]";
   }
 }
 
@@ -84,7 +85,7 @@ function buildInviteeDrafts(
     }));
 }
 
-export function InvitationGroups({ groups }: InvitationGroupsProps) {
+export function InvitationGroups({ groups, weddingId }: InvitationGroupsProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
@@ -141,7 +142,7 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
     setMessage(null);
 
     try {
-      const result = await createInvitees(invitees);
+      const result = await createInvitees(weddingId, invitees);
 
       if (!result.ok) {
         setMessage({ type: "error", text: result.error });
@@ -179,7 +180,7 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
       return;
     }
 
-    await submitInvitees(invitees, "Group created.", () => {
+    await submitInvitees(invitees, "Guest circle created.", () => {
       setIsCreatingGroup(false);
       setNewGroupCode(generateInvitationCode());
       setNewGroupPeople([createEmptyPerson()]);
@@ -199,7 +200,7 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
       return;
     }
 
-    await submitInvitees(invitees, "Invitee added to group.", () => {
+    await submitInvitees(invitees, "Guest added to circle.", () => {
       setOpenGroupCode(null);
       setSingleInvitee(createEmptyPerson());
     });
@@ -209,11 +210,12 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
     <div className="px-6 py-8 sm:px-10">
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-[#3a2519]">
-            Invitation Groups
+          <p className="wedding-kicker">Curated Invitations</p>
+          <h2 className="mt-2 text-3xl font-semibold text-[#3b2027]">
+            Guest Circles
           </h2>
-          <p className="mt-1 text-sm text-[#7d6657]">
-            Search by invitee name to show every member of their invitation group.
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#7c5f65]">
+            Search by guest name to reveal every loved one in their invitation circle.
           </p>
         </div>
 
@@ -225,8 +227,8 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                 type="search"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search by name..."
-                className="w-full rounded-full border border-[#d7bea3] bg-white px-5 py-3 text-sm text-[#3a2519] shadow-sm shadow-[#8f6235]/5 outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                placeholder="Search the guest list..."
+                className="w-full rounded-full px-5 py-3 text-sm wedding-field"
               />
             </label>
           )}
@@ -237,9 +239,9 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
               setIsCreatingGroup((isOpen) => !isOpen);
               setMessage(null);
             }}
-            className="rounded-full border border-[#b78b5e]/40 bg-[#3a2519] px-5 py-3 text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 hover:bg-[#5a3927] focus:outline-none focus:ring-2 focus:ring-[#b78b5e] focus:ring-offset-2"
+            className="rounded-full px-5 py-3 text-sm font-semibold wedding-button-primary focus:outline-none focus:ring-2 focus:ring-[#c97883] focus:ring-offset-2"
           >
-            {isCreatingGroup ? "Close" : "+ New Group"}
+            {isCreatingGroup ? "Close" : "+ New Circle"}
           </button>
         </div>
       </div>
@@ -248,8 +250,8 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
         <div
           className={`mb-5 rounded-2xl border px-5 py-3 text-sm ${
             message.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-rose-200 bg-rose-50 text-rose-800"
+              ? "border-[#dce7cf] bg-[#f5f8ef] text-[#55663f]"
+              : "border-[#f1c7ce] bg-[#fff1f3] text-[#8b3145]"
           }`}
         >
           {message.text}
@@ -259,18 +261,18 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
       {isCreatingGroup && (
         <form
           onSubmit={handleNewGroupSubmit}
-          className="mb-6 rounded-3xl border border-[#ead9c7] bg-[#fff8f0] p-5 shadow-sm shadow-[#8f6235]/5"
+          className="mb-6 rounded-4xl p-5 wedding-card"
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <label className="w-full lg:max-w-sm">
-              <span className="text-sm font-semibold text-[#3a2519]">
+              <span className="text-sm font-semibold text-[#3b2027]">
                 Invitation code
               </span>
               <input
                 type="text"
                 value={newGroupCode}
                 onChange={(event) => setNewGroupCode(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-[#d7bea3] bg-white px-4 py-3 text-sm text-[#3a2519] outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                className="mt-2 w-full rounded-2xl px-4 py-3 text-sm wedding-field"
               />
             </label>
             <button
@@ -278,9 +280,9 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
               onClick={() =>
                 setNewGroupPeople((people) => [...people, createEmptyPerson()])
               }
-              className="rounded-full border border-[#b78b5e]/40 bg-white px-4 py-2 text-sm font-semibold text-[#3a2519] hover:-translate-y-0.5 hover:bg-[#fff2e5] focus:outline-none focus:ring-2 focus:ring-[#b78b5e] focus:ring-offset-2"
+              className="rounded-full px-4 py-2 text-sm font-semibold wedding-button-secondary focus:outline-none focus:ring-2 focus:ring-[#c97883] focus:ring-offset-2"
             >
-              + Add Person
+              + Add Guest
             </button>
           </div>
 
@@ -288,10 +290,10 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
             {newGroupPeople.map((person, index) => (
               <div
                 key={index}
-                className="grid gap-3 rounded-2xl border border-[#ead9c7] bg-white p-4 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
+                className="grid gap-3 rounded-3xl border border-[#f0d2d7] bg-[#fffdf8]/80 p-4 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
               >
                 <label>
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b78b5e]">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b88b55]">
                     Full name
                   </span>
                   <input
@@ -301,11 +303,11 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                       updateNewGroupPerson(index, "fullName", event.target.value)
                     }
                     placeholder="Full name"
-                    className="mt-2 w-full rounded-2xl border border-[#d7bea3] px-4 py-3 text-sm text-[#3a2519] outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                    className="mt-2 w-full rounded-2xl px-4 py-3 text-sm wedding-field"
                   />
                 </label>
                 <label>
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b78b5e]">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b88b55]">
                     Phone
                   </span>
                   <input
@@ -315,11 +317,11 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                       updateNewGroupPerson(index, "phone", event.target.value)
                     }
                     placeholder="Phone"
-                    className="mt-2 w-full rounded-2xl border border-[#d7bea3] px-4 py-3 text-sm text-[#3a2519] outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                    className="mt-2 w-full rounded-2xl px-4 py-3 text-sm wedding-field"
                   />
                 </label>
                 <label>
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b78b5e]">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b88b55]">
                     Email
                   </span>
                   <input
@@ -329,13 +331,13 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                       updateNewGroupPerson(index, "email", event.target.value)
                     }
                     placeholder="Email"
-                    className="mt-2 w-full rounded-2xl border border-[#d7bea3] px-4 py-3 text-sm text-[#3a2519] outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                    className="mt-2 w-full rounded-2xl px-4 py-3 text-sm wedding-field"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={() => removeNewGroupPerson(index)}
-                  className="self-end rounded-full border border-[#d7bea3] px-4 py-3 text-sm font-semibold text-[#7d6657] hover:bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#b78b5e] focus:ring-offset-2"
+                  className="self-end rounded-full px-4 py-3 text-sm font-semibold wedding-button-secondary focus:outline-none focus:ring-2 focus:ring-[#c97883] focus:ring-offset-2"
                 >
                   Remove
                 </button>
@@ -347,28 +349,28 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
             <button
               type="button"
               onClick={() => setIsCreatingGroup(false)}
-              className="rounded-full border border-[#d7bea3] px-5 py-3 text-sm font-semibold text-[#7d6657] hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#b78b5e] focus:ring-offset-2"
+              className="rounded-full px-5 py-3 text-sm font-semibold wedding-button-secondary focus:outline-none focus:ring-2 focus:ring-[#c97883] focus:ring-offset-2"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-full border border-[#b78b5e]/40 bg-[#3a2519] px-5 py-3 text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 hover:bg-[#5a3927] focus:outline-none focus:ring-2 focus:ring-[#b78b5e] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full px-5 py-3 text-sm font-semibold wedding-button-primary focus:outline-none focus:ring-2 focus:ring-[#c97883] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Creating..." : "Create Group"}
+              {isSubmitting ? "Creating..." : "Create Circle"}
             </button>
           </div>
         </form>
       )}
 
       {groups.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-[#d7bea3] bg-[#fff8f0] p-10 text-center text-[#7d6657]">
-          No invitees were found for this wedding.
+        <div className="rounded-3xl border border-dashed border-[#d9a8b0] bg-[#fff1f3]/70 p-10 text-center text-[#7c5f65]">
+          No guests were found for this wedding yet.
         </div>
       ) : filteredGroups.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-[#d7bea3] bg-[#fff8f0] p-10 text-center text-[#7d6657]">
-          No groups include an invitee named &quot;{searchQuery.trim()}&quot;.
+        <div className="rounded-3xl border border-dashed border-[#d9a8b0] bg-[#fff1f3]/70 p-10 text-center text-[#7c5f65]">
+          No guest circles include someone named &quot;{searchQuery.trim()}&quot;.
         </div>
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
@@ -378,21 +380,21 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
             return (
               <article
                 key={group.invitationCode}
-                className="rounded-3xl border border-[#ead9c7] bg-white p-5 shadow-sm shadow-[#8f6235]/5"
+                className="rounded-4xl p-5 wedding-card"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#b78b5e]">
-                      Group {groupNumber}
+                    <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#b88b55]">
+                      Circle {groupNumber}
                     </p>
-                    <h3 className="mt-2 text-2xl font-semibold text-[#3a2519]">
+                    <h3 className="mt-2 text-3xl font-semibold text-[#3b2027]">
                       {group.invitationCode}
                     </h3>
                     <a
                       href={invitationUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-2 block break-all text-sm text-[#7d6657] hover:text-[#3a2519]"
+                      className="mt-2 block break-all text-sm text-[#7c5f65] hover:text-[#6f2537]"
                     >
                       {invitationUrl}
                     </a>
@@ -410,9 +412,9 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                         setSingleInvitee(createEmptyPerson());
                         setMessage(null);
                       }}
-                      className="rounded-full border border-[#b78b5e]/40 bg-white px-4 py-2 text-sm font-semibold text-[#3a2519] shadow-sm hover:-translate-y-0.5 hover:bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#b78b5e] focus:ring-offset-2"
+                      className="rounded-full px-4 py-2 text-sm font-semibold wedding-button-secondary focus:outline-none focus:ring-2 focus:ring-[#c97883] focus:ring-offset-2"
                     >
-                      {openGroupCode === group.invitationCode ? "Close" : "+ Person"}
+                      {openGroupCode === group.invitationCode ? "Close" : "+ Guest"}
                     </button>
                   </div>
                 </div>
@@ -422,10 +424,10 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                     onSubmit={(event) =>
                       handleSingleInviteeSubmit(event, group.invitationCode)
                     }
-                    className="mt-5 grid gap-3 rounded-2xl border border-[#ead9c7] bg-[#fff8f0] p-4 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
+                    className="mt-5 grid gap-3 rounded-3xl border border-[#f0d2d7] bg-[#fff1f3]/58 p-4 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
                   >
                     <label>
-                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b78b5e]">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b88b55]">
                         Full name
                       </span>
                       <input
@@ -438,11 +440,11 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                           }))
                         }
                         placeholder="Full name"
-                        className="mt-2 w-full rounded-2xl border border-[#d7bea3] bg-white px-4 py-3 text-sm text-[#3a2519] outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                        className="mt-2 w-full rounded-2xl px-4 py-3 text-sm wedding-field"
                       />
                     </label>
                     <label>
-                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b78b5e]">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b88b55]">
                         Phone
                       </span>
                       <input
@@ -455,11 +457,11 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                           }))
                         }
                         placeholder="Phone"
-                        className="mt-2 w-full rounded-2xl border border-[#d7bea3] bg-white px-4 py-3 text-sm text-[#3a2519] outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                        className="mt-2 w-full rounded-2xl px-4 py-3 text-sm wedding-field"
                       />
                     </label>
                     <label>
-                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b78b5e]">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b88b55]">
                         Email
                       </span>
                       <input
@@ -472,31 +474,31 @@ export function InvitationGroups({ groups }: InvitationGroupsProps) {
                           }))
                         }
                         placeholder="Email"
-                        className="mt-2 w-full rounded-2xl border border-[#d7bea3] bg-white px-4 py-3 text-sm text-[#3a2519] outline-none placeholder:text-[#a78f7d] focus:border-[#b78b5e] focus:ring-4 focus:ring-[#b78b5e]/15"
+                        className="mt-2 w-full rounded-2xl px-4 py-3 text-sm wedding-field"
                       />
                     </label>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="self-end rounded-full border border-[#b78b5e]/40 bg-[#3a2519] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 hover:bg-[#5a3927] focus:outline-none focus:ring-2 focus:ring-[#b78b5e] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="self-end rounded-full px-4 py-3 text-sm font-semibold wedding-button-primary focus:outline-none focus:ring-2 focus:ring-[#c97883] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isSubmitting ? "Adding..." : "Add"}
                     </button>
                   </form>
                 )}
 
-                <div className="mt-5 divide-y divide-[#f0e4d8]">
+                <div className="mt-5 divide-y divide-[#f1d9dd]">
                   {group.invitees.map((invitee) => (
                     <div
                       key={invitee.id}
                       className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
-                        <p className="font-medium text-[#3a2519]">
-                          {invitee.fullName || "Unnamed invitee"}
+                        <p className="font-medium text-[#3b2027]">
+                          {invitee.fullName || "Unnamed guest"}
                         </p>
                         {(invitee.phone || invitee.email) && (
-                          <p className="mt-1 text-sm text-[#8a7465]">
+                          <p className="mt-1 text-sm text-[#7c5f65]">
                             {[invitee.phone, invitee.email].filter(Boolean).join(" - ")}
                           </p>
                         )}

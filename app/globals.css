@@ -1,16 +1,127 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fffaf5;
-  --foreground: #2f2118;
+  --background: #fff8f6;
+  --foreground: #3b2027;
+  --blush: #f7dfe2;
+  --blush-deep: #c97883;
+  --champagne: #f3dec1;
+  --champagne-deep: #b88b55;
+  --wine: #6f2537;
+  --rosewood: #3b2027;
+  --sage: #7c8a6b;
+  --cream: #fffdf8;
 }
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
   background:
-    radial-gradient(circle at top left, rgba(244, 214, 181, 0.45), transparent 34rem),
-    linear-gradient(135deg, #fffaf5 0%, #f7efe7 48%, #fffdf9 100%);
+    radial-gradient(circle at 8% 10%, rgba(247, 223, 226, 0.86), transparent 23rem),
+    radial-gradient(circle at 92% 3%, rgba(243, 222, 193, 0.74), transparent 25rem),
+    radial-gradient(circle at 78% 82%, rgba(199, 120, 131, 0.16), transparent 28rem),
+    linear-gradient(135deg, #fff8f6 0%, #fffdf8 42%, #f8ece7 100%);
   color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+body::before,
+body::after {
+  position: fixed;
+  z-index: -1;
+  width: 22rem;
+  height: 22rem;
+  border: 1px solid rgba(184, 139, 85, 0.18);
+  border-radius: 9999px;
+  content: "";
+  pointer-events: none;
+}
+
+body::before {
+  top: -9rem;
+  left: -7rem;
+  box-shadow: 2.5rem 2.5rem 0 rgba(247, 223, 226, 0.34);
+}
+
+body::after {
+  right: -8rem;
+  bottom: -10rem;
+  box-shadow: -2.5rem -2.5rem 0 rgba(243, 222, 193, 0.34);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.font-script {
+  font-family: var(--font-script), cursive;
+}
+
+.wedding-panel {
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(255, 248, 246, 0.76)),
+    rgba(255, 255, 255, 0.72);
+  box-shadow: 0 2rem 5rem rgba(111, 37, 55, 0.14);
+  backdrop-filter: blur(18px);
+}
+
+.wedding-card {
+  border: 1px solid rgba(184, 139, 85, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(255, 248, 246, 0.92)),
+    var(--cream);
+  box-shadow: 0 1.25rem 3rem rgba(111, 37, 55, 0.08);
+}
+
+.wedding-kicker {
+  color: var(--champagne-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.wedding-field {
+  border: 1px solid rgba(184, 139, 85, 0.34);
+  background-color: rgba(255, 253, 248, 0.92);
+  color: var(--rosewood);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.wedding-field::placeholder {
+  color: rgba(111, 37, 55, 0.42);
+}
+
+.wedding-field:focus {
+  border-color: var(--blush-deep);
+  box-shadow: 0 0 0 4px rgba(199, 120, 131, 0.16);
+  outline: none;
+}
+
+.wedding-button-primary {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: linear-gradient(135deg, var(--wine), #9b4d62);
+  color: white;
+  box-shadow: 0 0.9rem 1.6rem rgba(111, 37, 55, 0.18);
+}
+
+.wedding-button-primary:hover {
+  background: linear-gradient(135deg, #5d1f2f, #8d4055);
+  transform: translateY(-0.125rem);
+}
+
+.wedding-button-secondary {
+  border: 1px solid rgba(184, 139, 85, 0.32);
+  background: rgba(255, 253, 248, 0.82);
+  color: var(--rosewood);
+}
+
+.wedding-button-secondary:hover {
+  background: rgba(247, 223, 226, 0.44);
+  transform: translateY(-0.125rem);
 }
 
 button,
