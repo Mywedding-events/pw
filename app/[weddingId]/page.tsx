@@ -158,7 +158,12 @@ export default async function WeddingPage({ params }: WeddingPageProps) {
             </div>
           </div>
 
-          <InvitationGroups groups={groups} weddingId={weddingId} />
+          <InvitationGroups
+            groups={groups}
+            weddingId={weddingId}
+            groomName={wedding?.groomName}
+            brideName={wedding?.brideName}
+          />
         </div>
       </section>
     </main>

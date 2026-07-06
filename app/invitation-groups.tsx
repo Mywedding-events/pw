@@ -5,7 +5,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { createInvitees, type InviteeDraft } from "./admin-invitees";
 import { CopyLinkButton } from "./copy-link-button";
 
-const INVITATION_BASE_URL = "https://joeelissa.mywedding.events";
+const INVITATION_DOMAIN = "mywedding.events";
 
 export type Invitee = {
   id: string;
@@ -24,6 +24,8 @@ export type InviteeGroup = {
 type InvitationGroupsProps = {
   groups: InviteeGroup[];
   weddingId: string;
+  groomName?: string | null;
+  brideName?: string | null;
 };
 
 type PersonFormState = {
@@ -70,6 +72,29 @@ function optionalValue(value: string) {
   return trimmedValue || undefined;
 }
 
+function firstName(value?: string | null) {
+  return value?.trim().split(/\s+/)[0] ?? "";
+}
+
+function normalizeUrlSegment(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function buildInvitationBaseUrl(
+  groomName?: string | null,
+  brideName?: string | null
+) {
+  const coupleSlug =
+    normalizeUrlSegment(firstName(groomName)) +
+    normalizeUrlSegment(firstName(brideName));
+
+  return `https://${coupleSlug || "wedding"}.${INVITATION_DOMAIN}`;
+}
+
 function buildInviteeDrafts(
   invitationCode: string,
   people: PersonFormState[]
@@ -85,7 +110,12 @@ function buildInviteeDrafts(
     }));
 }
 
-export function InvitationGroups({ groups, weddingId }: InvitationGroupsProps) {
+export function InvitationGroups({
+  groups,
+  weddingId,
+  groomName,
+  brideName
+}: InvitationGroupsProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
@@ -98,6 +128,10 @@ export function InvitationGroups({ groups, weddingId }: InvitationGroupsProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<FormMessage | null>(null);
   const normalizedQuery = searchQuery.trim().toLowerCase();
+  const invitationBaseUrl = useMemo(
+    () => buildInvitationBaseUrl(groomName, brideName),
+    [brideName, groomName]
+  );
 
   const filteredGroups = useMemo(() => {
     if (!normalizedQuery) {
@@ -375,7 +409,7 @@ export function InvitationGroups({ groups, weddingId }: InvitationGroupsProps) {
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
           {filteredGroups.map(({ group, groupNumber }) => {
-            const invitationUrl = `${INVITATION_BASE_URL}/${group.invitationCode}`;
+            const invitationUrl = `${invitationBaseUrl}/${group.invitationCode}`;
 
             return (
               <article
@@ -383,7 +417,7 @@ export function InvitationGroups({ groups, weddingId }: InvitationGroupsProps) {
                 className="rounded-4xl p-5 wedding-card"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#b88b55]">
                       Circle {groupNumber}
                     </p>
@@ -399,7 +433,7 @@ export function InvitationGroups({ groups, weddingId }: InvitationGroupsProps) {
                       {invitationUrl}
                     </a>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex shrink-0 flex-wrap justify-end gap-2">
                     <CopyLinkButton url={invitationUrl} />
                     <button
                       type="button"
