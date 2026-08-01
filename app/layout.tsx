@@ -7,7 +7,7 @@ import {
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Joe & Elissa Wedding Invitees",
+  title: "Wedding Guest Suite",
   description: "Wedding invitation groups and invitee details"
 };
 
