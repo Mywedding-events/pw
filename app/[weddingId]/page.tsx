@@ -120,7 +120,7 @@ export default async function WeddingPage({ params }: WeddingPageProps) {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:min-w-152 xl:grid-cols-5">
                 <div className="rounded-3xl border border-white/20 bg-white/10 p-4 backdrop-blur">
                   <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#f3dec1]">
-                    Tables
+                    Circles
                   </p>
                   <p className="mt-1 text-3xl font-semibold">{groups.length}</p>
                 </div>
