@@ -8,6 +8,9 @@ export const dynamic = "force-dynamic";
 
 const API_BASE_URL = "https://api.mywedding.events";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "change-me";
+const PRIMARY_INVITATION_DOMAIN = "mywedding.events";
+const FALLBACK_INVITATION_DOMAIN = "myday.events";
+const WEBSITE_CHECK_TIMEOUT_MS = 3000;
 
 type Wedding = {
   id: string;
@@ -87,9 +90,62 @@ function countRsvpStatuses(invitees: Invitee[]): RsvpCounts {
   );
 }
 
+function firstName(value?: string | null) {
+  return value?.trim().split(/\s+/)[0] ?? "";
+}
+
+function normalizeUrlSegment(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function invitationBaseUrl(
+  domain: string,
+  groomName?: string | null,
+  brideName?: string | null
+) {
+  const coupleSlug =
+    normalizeUrlSegment(firstName(groomName)) +
+    normalizeUrlSegment(firstName(brideName));
+
+  return `https://${coupleSlug || "wedding"}.${domain}`;
+}
+
+async function chooseInvitationBaseUrl(wedding?: Wedding) {
+  const primaryUrl = invitationBaseUrl(
+    PRIMARY_INVITATION_DOMAIN,
+    wedding?.groomName,
+    wedding?.brideName
+  );
+
+  try {
+    const response = await fetch(primaryUrl, {
+      method: "HEAD",
+      cache: "no-store",
+      signal: AbortSignal.timeout(WEBSITE_CHECK_TIMEOUT_MS)
+    });
+
+    if (response.ok) {
+      return primaryUrl;
+    }
+  } catch {
+    // An unavailable or nonexistent primary website uses the fallback domain.
+  }
+
+  return invitationBaseUrl(
+    FALLBACK_INVITATION_DOMAIN,
+    wedding?.groomName,
+    wedding?.brideName
+  );
+}
+
 export default async function WeddingPage({ params }: WeddingPageProps) {
   const { weddingId } = await params;
   const { wedding, invitees = [] } = await getWeddingDetails(weddingId);
+  const invitationUrl = await chooseInvitationBaseUrl(wedding);
   const groups = groupInvitees(invitees);
   const totalInvitees = invitees.length;
   const rsvpCounts = countRsvpStatuses(invitees);
@@ -161,8 +217,7 @@ export default async function WeddingPage({ params }: WeddingPageProps) {
           <InvitationGroups
             groups={groups}
             weddingId={weddingId}
-            groomName={wedding?.groomName}
-            brideName={wedding?.brideName}
+            invitationBaseUrl={invitationUrl}
           />
         </div>
       </section>

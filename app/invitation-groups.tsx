@@ -5,8 +5,6 @@ import { useMemo, useState, type FormEvent } from "react";
 import { createInvitees, type InviteeDraft } from "./admin-invitees";
 import { CopyLinkButton } from "./copy-link-button";
 
-const INVITATION_DOMAIN = "mywedding.events";
-
 export type Invitee = {
   id: string;
   invitationCode?: string | null;
@@ -24,8 +22,7 @@ export type InviteeGroup = {
 type InvitationGroupsProps = {
   groups: InviteeGroup[];
   weddingId: string;
-  groomName?: string | null;
-  brideName?: string | null;
+  invitationBaseUrl: string;
 };
 
 type PersonFormState = {
@@ -72,29 +69,6 @@ function optionalValue(value: string) {
   return trimmedValue || undefined;
 }
 
-function firstName(value?: string | null) {
-  return value?.trim().split(/\s+/)[0] ?? "";
-}
-
-function normalizeUrlSegment(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
-}
-
-function buildInvitationBaseUrl(
-  groomName?: string | null,
-  brideName?: string | null
-) {
-  const coupleSlug =
-    normalizeUrlSegment(firstName(groomName)) +
-    normalizeUrlSegment(firstName(brideName));
-
-  return `https://${coupleSlug || "wedding"}.${INVITATION_DOMAIN}`;
-}
-
 function buildInviteeDrafts(
   invitationCode: string,
   people: PersonFormState[]
@@ -113,8 +87,7 @@ function buildInviteeDrafts(
 export function InvitationGroups({
   groups,
   weddingId,
-  groomName,
-  brideName
+  invitationBaseUrl
 }: InvitationGroupsProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -128,11 +101,6 @@ export function InvitationGroups({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<FormMessage | null>(null);
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const invitationBaseUrl = useMemo(
-    () => buildInvitationBaseUrl(groomName, brideName),
-    [brideName, groomName]
-  );
-
   const filteredGroups = useMemo(() => {
     if (!normalizedQuery) {
       return groups.map((group, index) => ({ group, groupNumber: index + 1 }));
